@@ -83,22 +83,6 @@ def display_image_in_jupyter(image):
     else:
         raise ValueError("Unsupported image format for display.")
 
-def save_image(image, output_path):
-    if isinstance(image, np.ndarray):
-        plt.figure(figsize=(10, 10))
-        plt.imshow(image)
-        plt.axis("off")
-        plt.savefig(output_path, bbox_inches='tight')
-        plt.close()
-    elif isinstance(image, PILImage.Image):
-        plt.figure(figsize=(10, 10))
-        plt.imshow(np.asarray(image))
-        plt.axis("off")
-        plt.savefig(output_path, bbox_inches='tight')
-        plt.close()
-    else:
-        raise ValueError("Unsupported image format for saving.")
-
 if __name__ == "__main__":
     mp.set_start_method("spawn", force=True)
     args = get_parser().parse_args()
@@ -109,30 +93,27 @@ if __name__ == "__main__":
 
     demo = VisualizationDemo(cfg)
 
-if args.input:
-    for idx, path in enumerate(tqdm.tqdm(args.input, disable=not args.output)):
-        img = read_image(path, format="BGR")
-        start_time = time.time()
-        predictions, visualized_output = demo.run_on_image(img)
-        logger.info(
-            "{}: detected {} instances in {:.2f}s".format(
-                path, len(predictions["instances"]), time.time() - start_time
+    if args.input:
+        for path in tqdm.tqdm(args.input, disable=not args.output):
+            img = read_image(path, format="BGR")
+            start_time = time.time()
+            predictions, visualized_output = demo.run_on_image(img)
+            logger.info(
+                "{}: detected {} instances in {:.2f}s".format(
+                    path, len(predictions["instances"]), time.time() - start_time
+                )
             )
-        )
-
-        if args.output:
-            if os.path.isdir(args.output):
-                out_filename = os.path.join(args.output, os.path.basename(path))
+    
+            if args.output:
+                if os.path.isdir(args.output):
+                    out_filename = os.path.join(args.output, os.path.basename(path))
+                else:
+                    assert len(args.input) == 1, "Please specify a directory with args.output"
+                    out_filename = args.output
+                visualized_output.save(out_filename)
             else:
-                assert len(args.input) == 1, "Please specify a directory with args.output"
-                out_filename = args.output
-            visualized_output.save(out_filename)
-        else:
-            # Define the output path for saving
-            output_path = f"output_image_{idx}.png"
-            # Save the image instead of displaying it
-            save_image(visualized_output.get_image()[:, :, ::-1], output_path)
-            logger.info(f"Saved output to {output_path}")
+                display_image_in_jupyter(visualized_output.get_image()[:, :, ::-1])
+                plt.show()
                 
     elif args.webcam:
         assert args.input is None, "Cannot have both --input and --webcam!"
