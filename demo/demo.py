@@ -69,8 +69,11 @@ def get_parser():
     return parser
 
 def display_image_in_jupyter(image):
-    pil_img = PILImage.fromarray(image)
-    display(pil_img)
+    if isinstance(image, PILImage.Image):
+        display(image)
+    else:
+        pil_img = PILImage.fromarray(image)
+        display(pil_img)
 
 if __name__ == "__main__":
     mp.set_start_method("spawn", force=True)
