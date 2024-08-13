@@ -103,7 +103,7 @@ if __name__ == "__main__":
                     path, len(predictions["instances"]), time.time() - start_time
                 )
             )
-
+    
             if args.output:
                 if os.path.isdir(args.output):
                     out_filename = os.path.join(args.output, os.path.basename(path))
@@ -112,9 +112,9 @@ if __name__ == "__main__":
                     out_filename = args.output
                 visualized_output.save(out_filename)
             else:
-                # Use matplotlib to display the image in Jupyter
                 display_image_in_jupyter(visualized_output.get_image()[:, :, ::-1])
-
+                plt.show()
+                
     elif args.webcam:
         assert args.input is None, "Cannot have both --input and --webcam!"
         cam = cv2.VideoCapture(0)
