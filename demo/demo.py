@@ -83,15 +83,15 @@ if __name__ == "__main__":
     demo = VisualizationDemo(cfg)
 
     if args.input:
-    for path in tqdm.tqdm(args.input, disable=not args.output):
-        img = read_image(path, format="BGR")
-        start_time = time.time()
-        predictions, visualized_output = demo.run_on_image(img)
-        logger.info(
-            "{}: detected {} instances in {:.2f}s".format(
-                path, len(predictions["instances"]), time.time() - start_time
+        for path in tqdm.tqdm(args.input, disable=not args.output):
+            img = read_image(path, format="BGR")
+            start_time = time.time()
+            predictions, visualized_output = demo.run_on_image(img)
+            logger.info(
+                "{}: detected {} instances in {:.2f}s".format(
+                    path, len(predictions["instances"]), time.time() - start_time
+                )
             )
-        )
 
             if args.output:
                 if os.path.isdir(args.output):
