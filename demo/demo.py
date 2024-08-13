@@ -66,7 +66,7 @@ def get_parser():
 
 def display_image_in_jupyter(image):
     plt.figure(figsize=(10, 10))
-    plt.imshow(image)
+    plt.imshow(visualized_output.get_image()[:, :, ::-1])
     plt.axis("off")
     plt.show()
 
