@@ -7,6 +7,7 @@ import time
 import cv2
 import tqdm
 import matplotlib.pyplot as plt
+import numpy as np
 
 from detectron2.data.detection_utils import read_image
 from detectron2.utils.logger import setup_logger
@@ -69,11 +70,18 @@ def get_parser():
     return parser
 
 def display_image_in_jupyter(image):
-    if isinstance(image, PILImage.Image):
-        display(image)
+    if isinstance(image, np.ndarray):
+        plt.figure(figsize=(10, 10))
+        plt.imshow(image)
+        plt.axis("off")
+        plt.show()
+    elif isinstance(image, PILImage.Image):
+        plt.figure(figsize=(10, 10))
+        plt.imshow(np.asarray(image))
+        plt.axis("off")
+        plt.show()
     else:
-        pil_img = PILImage.fromarray(image)
-        display(pil_img)
+        raise ValueError("Unsupported image format for display.")
 
 if __name__ == "__main__":
     mp.set_start_method("spawn", force=True)
