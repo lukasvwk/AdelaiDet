@@ -14,6 +14,10 @@ from detectron2.utils.logger import setup_logger
 from predictor import VisualizationDemo
 from adet.config import get_cfg
 
+from IPython.display import display
+from PIL import Image as PILImage
+import io
+
 # constants
 WINDOW_NAME = "COCO detections"
 
@@ -65,10 +69,8 @@ def get_parser():
     return parser
 
 def display_image_in_jupyter(image):
-    plt.figure(figsize=(10, 10))
-    plt.imshow(visualized_output.get_image()[:, :, ::-1])
-    plt.axis("off")
-    plt.show()
+    pil_img = PILImage.fromarray(image)
+    display(pil_img)
 
 if __name__ == "__main__":
     mp.set_start_method("spawn", force=True)
@@ -81,20 +83,15 @@ if __name__ == "__main__":
     demo = VisualizationDemo(cfg)
 
     if args.input:
-        if os.path.isdir(args.input[0]):
-            args.input = [os.path.join(args.input[0], fname) for fname in os.listdir(args.input[0])]
-        elif len(args.input) == 1:
-            args.input = glob.glob(os.path.expanduser(args.input[0]))
-            assert args.input, "The input path(s) was not found"
-        for path in tqdm.tqdm(args.input, disable=not args.output):
-            img = read_image(path, format="BGR")
-            start_time = time.time()
-            predictions, visualized_output = demo.run_on_image(img)
-            logger.info(
-                "{}: detected {} instances in {:.2f}s".format(
-                    path, len(predictions["instances"]), time.time() - start_time
-                )
+    for path in tqdm.tqdm(args.input, disable=not args.output):
+        img = read_image(path, format="BGR")
+        start_time = time.time()
+        predictions, visualized_output = demo.run_on_image(img)
+        logger.info(
+            "{}: detected {} instances in {:.2f}s".format(
+                path, len(predictions["instances"]), time.time() - start_time
             )
+        )
 
             if args.output:
                 if os.path.isdir(args.output):
@@ -148,6 +145,4 @@ if __name__ == "__main__":
                 display_image_in_jupyter(vis_frame)
                 if cv2.waitKey(1) == 27:
                     break  # esc to quit
-        video.release()
-        if args.output:
-            output_file.release()
+        display_image_in_jupyter(visualized_output.get_image()[:, :, ::-1])
