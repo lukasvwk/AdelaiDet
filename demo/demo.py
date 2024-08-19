@@ -69,17 +69,21 @@ def get_parser():
     )
     return parser
 
-def display_image_in_jupyter(image):
+def display_image_in_jupyter(image, save_path=None):
     if isinstance(image, np.ndarray):
         plt.figure(figsize=(10, 10))
         plt.imshow(image)
         plt.axis("off")
         plt.show()
+        if save_path:
+            PILImage.fromarray(image).save(save_path)
     elif isinstance(image, PILImage.Image):
         plt.figure(figsize=(10, 10))
         plt.imshow(np.asarray(image))
         plt.axis("off")
         plt.show()
+        if save_path:
+            image.save(save_path)
     else:
         raise ValueError("Unsupported image format for display.")
 
@@ -112,15 +116,15 @@ if __name__ == "__main__":
                     out_filename = args.output
                 visualized_output.save(out_filename)
             else:
-                display_image_in_jupyter(visualized_output.get_image()[:, :, ::-1])
-                plt.show()
+                # Display and save the image
+                display_image_in_jupyter(visualized_output.get_image()[:, :, ::-1], save_path="output_image.png")
                 
     elif args.webcam:
         assert args.input is None, "Cannot have both --input and --webcam!"
         cam = cv2.VideoCapture(0)
         for vis in tqdm.tqdm(demo.run_on_video(cam)):
             # Use matplotlib to display the video frame in Jupyter
-            display_image_in_jupyter(vis)
+            display_image_in_jupyter(vis, save_path="webcam_output.png")
             if cv2.waitKey(1) == 27:
                 break  # esc to quit
         cam.release()
@@ -153,7 +157,7 @@ if __name__ == "__main__":
                 output_file.write(vis_frame)
             else:
                 # Use matplotlib to display the video frame in Jupyter
-                display_image_in_jupyter(vis_frame)
+                display_image_in_jupyter(vis_frame, save_path="video_output.png")
                 if cv2.waitKey(1) == 27:
                     break  # esc to quit
-        display_image_in_jupyter(visualized_output.get_image()[:, :, ::-1])
+        display_image_in_jupyter(visualized_output.get_image()[:, :, ::-1], save_path="final_video_frame.png")
